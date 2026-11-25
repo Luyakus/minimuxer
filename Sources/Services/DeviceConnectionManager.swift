@@ -206,9 +206,13 @@ actor DeviceConnectionManager {
     static func resolveCandidateTunnels(from interfaces: Set<NetInfo>) -> [TunnelNetInfo] {
         interfaces
             .compactMap { $0 as? TunnelNetInfo }
-            .filter { 
-                $0.tunnelType == .utun && 
-                !$0.interfaceAddresses.v4.isEmpty && $0.interfaceAddresses.v6.isEmpty 
+            .filter {
+                $0.tunnelType == .utun &&
+                !$0.interfaceAddresses.v4.isEmpty &&
+                // IPv6 仅排除"有全局 v6 地址的全功能隧道"（如 WireGuard app）；
+                // iOS 15/16 内核会给纯 IPv4 的 utun 自动配 fe80:: link-local 地址，
+                // 这类 link-local 不代表隧道本身启用了 v6，必须放行
+                $0.interfaceAddresses.v6.filter { !$0.hasPrefix("fe80:") }.isEmpty
             }
             .sorted { $0.name < $1.name }
     }
