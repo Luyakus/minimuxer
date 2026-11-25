@@ -1,0 +1,19 @@
+Sources/Services/DeviceConnectionManager.swift
+  s_ba0895fd51d7a0::t_16bf610aa61451 209-215
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "898c6597d69936e846857ee56c33c5c8f6cf7681",
+  "prompts": {},
+  "sessions": {
+    "s_ba0895fd51d7a0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b375945-68a8-4fa5-a522-1ba3e5aa38fb",
+        "model": "glm-5.3"
+      },
+      "human_author": "sam.lei <sam.lei@jtexpress.com>"
+    }
+  }
+}
