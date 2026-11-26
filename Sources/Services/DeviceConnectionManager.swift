@@ -223,7 +223,20 @@ actor DeviceConnectionManager {
 
     private func resolveLocalVPNTunnel(from interfaces: Set<NetInfo>) async -> (tunnel: TunnelNetInfo?, candidatePeer: CandidatePeer?, isReachable: Bool) {
         // pick all candidate peer ips
-        let candidates = Self.resolveCandidatePeers(from: interfaces)
+        var candidates = Self.resolveCandidatePeers(from: interfaces)
+
+        // loopback 兜底：lockdown 协议（pre-iOS 17）的 lockdownd 始终监听在本机
+        // 0.0.0.0:62078，即使 utun 隧道候选不可达（如 swap 隧道不转发包），
+        // 直连 127.0.0.1 仍可完成 probe 与后续服务调用
+        if let tunnel = interfaces.compactMap({ $0 as? TunnelNetInfo }).first(where: { $0.tunnelType == .utun }) {
+            let loopback = CandidatePeer(
+                tunnel: tunnel,
+                ip: MinimuxerConstants.usbmuxdHost, // "127.0.0.1"
+                mask: "255.255.255.255"
+            )
+            candidates.append(loopback)
+        }
+
         guard !candidates.isEmpty else { return (nil, nil, false) }
 
         // parallelized tcp service port probing on all candidate ips
